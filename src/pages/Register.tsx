@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -5,6 +6,10 @@ import InputErrorMessage from "../components/InputErrorMsg";
 import { REGISTER_FORM } from "../data";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { validationSchema } from "../validation";
+import axiosInstance from "../config/axios.config";
+import { toast, Toaster } from "react-hot-toast";
+import { AxiosError } from "axios";
+import { IErrorResponse } from "../interfaces";
 
 interface IFormInput {
   username: string;
@@ -13,6 +18,8 @@ interface IFormInput {
 }
 
 const RegisterPage = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -20,7 +27,32 @@ const RegisterPage = () => {
   } = useForm<IFormInput>({ resolver: yupResolver(validationSchema) });
 
   // Handlers
-  const onSubmit: SubmitHandler<IFormInput> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+    setIsLoading(true);
+    try {
+      const res = await axiosInstance.post("auth/local/register", data);
+      console.log(res);
+      if (res.status === 200) {
+        toast.success("register successfully , navigate to login page", {
+          position: "bottom-center",
+          duration: 4000,
+          style: {
+            backgroundColor: "black",
+            color: "white",
+            width: "fit-content",
+          },
+        });
+      }
+    } catch (error) {
+      const errorObj = error as AxiosError<IErrorResponse>;
+      toast.error(`${errorObj.response?.data.error.message}`, {
+        position: "bottom-center",
+        duration: 4000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Renders
 
@@ -46,8 +78,11 @@ const RegisterPage = () => {
       </h2>
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         {renderRegisterForm}
-        <Button fullWidth>Register</Button>
+        <Button fullWidth isLoading={isLoading}>
+          Register
+        </Button>
       </form>
+      <Toaster />
     </div>
   );
 };
