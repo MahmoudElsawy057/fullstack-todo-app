@@ -16,3 +16,16 @@ export const validationSchema = yup
       .min(6, "password should be atleast 5 characters"),
   })
   .required();
+
+export const validationLoginSchema = yup
+  .object({
+    identifier: yup
+      .string()
+      .required("email is required")
+      .matches(/^[^@ ]+@[^@ ]+\.[^@ .]{2,}$/, "not a valid email"),
+    password: yup
+      .string()
+      .required("password is required")
+      .min(6, "password should be atleast 5 characters"),
+  })
+  .required();
