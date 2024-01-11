@@ -42,6 +42,9 @@ const LoginPage = () => {
           },
         });
       }
+      location.replace("/");
+      localStorage.setItem("loggedinUser", JSON.stringify(res.data));
+      console.log(res.data);
     } catch (error) {
       const errorObj = error as AxiosError<IErrorResponse>;
       toast.error(`${errorObj.response?.data.error.message}`, {

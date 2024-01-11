@@ -1,4 +1,8 @@
-import { Route, createBrowserRouter, createRoutesFromElements } from "react-router-dom";
+import {
+  Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+} from "react-router-dom";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
 import PageNotFound from "../pages/PageNotFound";
 import RootLayout from "../pages/Layout";
@@ -7,8 +11,9 @@ import HomePage from "../pages";
 import LoginPage from "../pages/Login";
 import RegisterPage from "../pages/Register";
 
-const isLoggedIn = false;
-const userData: { email: string } | null = isLoggedIn ? { email: "email@gmail.com" } : null;
+const storageKey = "loggedinUser";
+const userDataString = localStorage.getItem(storageKey);
+const userData = userDataString ? JSON.parse(userDataString) : null;
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -18,15 +23,35 @@ const router = createBrowserRouter(
         <Route
           index
           element={
-            <ProtectedRoute isAllowed={isLoggedIn} redirectPath="/login" data={userData}>
+            <ProtectedRoute
+              isAllowed={userData}
+              redirectPath="/login"
+              data={userData}
+            >
               <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute
+              isAllowed={userData}
+              redirectPath="/login"
+              data={userData}
+            >
+              <h2>Profile Page</h2>{" "}
             </ProtectedRoute>
           }
         />
         <Route
           path="login"
           element={
-            <ProtectedRoute isAllowed={!isLoggedIn} redirectPath="/" data={userData}>
+            <ProtectedRoute
+              isAllowed={!userData}
+              redirectPath="/"
+              data={userData}
+            >
               <LoginPage />
             </ProtectedRoute>
           }
@@ -34,7 +59,11 @@ const router = createBrowserRouter(
         <Route
           path="register"
           element={
-            <ProtectedRoute isAllowed={!isLoggedIn} redirectPath="/login" data={userData}>
+            <ProtectedRoute
+              isAllowed={!userData}
+              redirectPath="/login"
+              data={userData}
+            >
               <RegisterPage />
             </ProtectedRoute>
           }
