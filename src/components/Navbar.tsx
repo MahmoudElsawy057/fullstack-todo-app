@@ -21,8 +21,11 @@ const Navbar = () => {
           <NavLink to="/">Home</NavLink>
         </li>
         {userData ? (
-          <div className="flex item-center text-white space-x-2">
-            <li className=" duration-200 font-semibold text-lg text-indigo-700">
+          <div className="flex items-center space-x-6">
+            <li className="duration-200 text-md text-gray-700 font-semibold">
+              <NavLink to="/todos">Todos</NavLink>
+            </li>
+            <li className="duration-200 text-md text-gray-700 font-semibold">
               <NavLink to="/profile">Profile</NavLink>
             </li>
             <Button
@@ -35,7 +38,7 @@ const Navbar = () => {
           </div>
         ) : (
           <p className="flex items-center space-x-3">
-            <li className="text-white duration-200 font-semibold text-lg">
+            <li className=" duration-200 font-semibold text-lg">
               <NavLink to="/register">Register</NavLink>
             </li>
             <li className="text-white duration-200 font-semibold text-lg">

@@ -7,6 +7,7 @@ import { ITodo } from "../interfaces";
 import Textarea from "./ui/Textarea";
 import axiosInstance from "../config/axios.config";
 import TodoSkeleton from "./TodoSkelton";
+import { faker } from "@faker-js/faker";
 
 const TodoList = () => {
   const storageKey = "loggedinUser";
@@ -106,7 +107,7 @@ const TodoList = () => {
   ) => {
     // const { name, value } = e.target;
     setTodoToAdd({
-      ...todoToEdit,
+      ...todoToAdd,
       [e.target.name]: e.target.value,
     });
   };
@@ -118,7 +119,31 @@ const TodoList = () => {
       ...todoToEdit,
       [e.target.name]: e.target.value,
     });
-    console.log(e.target.name);
+  };
+
+  const generateTodosHandler = async () => {
+    for (let i = 0; i < 100; i++) {
+      try {
+        const { data } = await axiosInstance.post(
+          `/todos/`,
+          {
+            data: {
+              title: faker.word.words(5),
+              description: faker.lorem.paragraph(2),
+              user: [userData.user.id],
+            },
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${userData.jwt}`,
+            },
+          }
+        );
+        console.log(data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   const onSubmitAddHandler = async (e: FormEvent<HTMLFormElement>) => {
@@ -131,6 +156,7 @@ const TodoList = () => {
           data: {
             title: todoToAdd.title,
             description: todoToAdd.description,
+            user: [userData.user.id],
           },
         },
         {
@@ -179,35 +205,53 @@ const TodoList = () => {
   };
 
   return (
-    <div>
-      <div className="space-y-1">
-        <div className="mx-auto my-10 w-fit">
-          <Button size={"sm"} onClick={openAddModalHandler}>
-            Post new todo
-          </Button>
-        </div>
+    <div className="space-y-1">
+      <div className="w-fit mx-auto my-10">
+        {isLoading ? (
+          <div className="flex items-center space-x-2">
+            <div className="w-32 h-9 bg-gray-300 rounded-md dark:bg-gray-400"></div>
+            <div className="w-32 h-9 bg-gray-300 rounded-md dark:bg-gray-400"></div>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-2">
+            <Button size={"sm"} onClick={openAddModalHandler}>
+              Post new todo
+            </Button>
+            <Button
+              variant={"outline"}
+              size={"sm"}
+              onClick={generateTodosHandler}
+            >
+              Generate todos
+            </Button>
+          </div>
+        )}
       </div>
       {data.todos.length ? (
         <div className="space-y-1 ">
           {data.todos.map((todo) => (
-            <div
-              key={todo.id}
-              className="flex items-center justify-between hover:bg-gray-100 duration-300 p-3 rounded-md even:bg-gray-100"
-            >
-              <p className="w-full font-semibold">{todo.title}</p>
-              <div className="flex items-center justify-end w-full space-x-3">
-                <Button size={"sm"} onClick={() => openEditModalHandler(todo)}>
-                  Edit
-                </Button>
-                <Button
-                  variant={"danger"}
-                  size={"sm"}
-                  onClick={() => openConfirmModalHandler(todo)}
-                >
-                  Remove
-                </Button>
+            <>
+              <div
+                key={todo.id}
+                className="flex items-center justify-between hover:bg-gray-100 duration-300 p-3 rounded-md even:bg-gray-100"
+              >
+                <p className="w-full font-semibold">
+                  {todo.id} - {todo.title}
+                </p>
+                <div className="flex items-center justify-end w-full space-x-3">
+                  <Button size={"sm"} onClick={() => onOpenEditModal(todo)}>
+                    Edit
+                  </Button>
+                  <Button
+                    variant={"danger"}
+                    size={"sm"}
+                    onClick={() => openConfirmModal(todo)}
+                  >
+                    Remove
+                  </Button>
+                </div>{" "}
               </div>
-            </div>
+            </>
           ))}
         </div>
       ) : (
